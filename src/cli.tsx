@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { render } from "ink";
-import meow from "meow";
+// import meow from "meow";
 import React from "react";
-import App from "./app.js";
+import {App} from "./app.js";
 
-const cli = meow(
+/* const cli = meow(
 	`
 	Usage
 	  $ polar-init
@@ -18,11 +18,11 @@ const cli = meow(
 	{
 		importMeta: import.meta,
 		flags: {
-			name: {
+			org: {
 				type: "string",
 			},
 		},
 	},
-);
+); */
 
-render(<App name={cli.flags.name} />);
+render(<App />);

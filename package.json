@@ -17,9 +17,13 @@
 		"dist"
 	],
 	"dependencies": {
+		"@inkjs/ui": "^2.0.0",
+		"@polar-sh/sdk": "^0.13.3",
 		"ink": "^4.1.0",
 		"meow": "^11.0.0",
-		"react": "^18.2.0"
+		"open": "^10.1.0",
+		"react": "^18.2.0",
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
