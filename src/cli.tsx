@@ -1,6 +1,6 @@
 import { Polar } from "@polar-sh/sdk";
 import meow from "meow";
-import { installDependencies } from "./dependencies.js";
+import { installDependencies } from "./install.js";
 import { login } from "./oauth.js";
 import { resolveOrganization } from "./organization.js";
 import { resolvePackageName } from "./package.js";
@@ -15,6 +15,8 @@ import {
 import { authenticationDisclaimer } from "./ui/authentication.js";
 import { installDisclaimer } from "./ui/install.js";
 import { precheckDisclaimer } from "./ui/precheck.js";
+import { environmentDisclaimer } from "./ui/environment.js";
+import { appendEnvironmentVariables } from "./env.js";
 
 const cli = meow(
 	`
@@ -30,10 +32,6 @@ const cli = meow(
 	{
 		importMeta: import.meta,
 		flags: {
-			skipProduct: {
-				type: "boolean",
-				default: false,
-			},
 			skipPrecheck: {
 				type: "boolean",
 				default: false,
@@ -51,34 +49,35 @@ const cli = meow(
 		await precheckDisclaimer();
 	}
 
+	const product = await productPrompt();
+
+	await authenticationDisclaimer();
+	const code = await login();
+
+	const api = new Polar({
+		accessToken: code,
+		server: "sandbox",
+	});
+
 	const packageName = await resolvePackageName();
+	const organization = await resolveOrganization(api, packageName);
 
-	if (!cli.flags.skipProduct) {
-		const product = await productPrompt();
+	await createProduct(api, organization, product);
 
-		await authenticationDisclaimer();
-		const code = await login();
-
-		const api = new Polar({
-			accessToken: code,
-			server: "sandbox",
-		});
-
-		const organization = await resolveOrganization(api, packageName);
-
-		await createProduct(api, organization, product);
-	}
 
 	if (!cli.flags.skipTemplate) {
 		const templates = await templatePrompt();
 
 		await copyPolarClientTemplate();
 
-		if (templates.includes("checkout")) {
+		const shouldCopyCheckout = templates.includes("checkout");
+		const shouldCopyWebhooks = templates.includes("webhooks");
+
+		if (shouldCopyCheckout) {
 			await copyCheckoutTemplate();
 		}
 
-		if (templates.includes("webhooks")) {
+		if (shouldCopyWebhooks) {
 			await copyWebhooksTemplate();
 		}
 
@@ -87,10 +86,18 @@ const cli = meow(
 
 		await installDisclaimer(
 			installDependencies(
-				templates.includes("webhooks")
+				shouldCopyWebhooks
 					? [...baseDependencies, ...webhooksDependencies]
 					: baseDependencies,
 			),
 		);
+
+		// Handle environment variables
+		await environmentDisclaimer(appendEnvironmentVariables( shouldCopyWebhooks ? {
+			// POLAR_ACCESS_TOKEN: accessToken,
+			POLAR_ORGANIZATION_ID: organization.id
+		} : {
+			POLAR_ORGANIZATION_ID: organization.id
+		}));
 	}
 })();

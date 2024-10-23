@@ -1,11 +1,8 @@
-// @ts-ignore
-import spawn from "next/dist/compiled/cross-spawn/index.js";
+import spawn from 'cross-spawn'
 import { getPkgManager } from "next/dist/lib/helpers/get-pkg-manager.js";
 
 /**
  * Spawn a package manager installation with either npm, pnpm, or yarn.
- *
- * @returns A Promise that resolves once the installation is finished.
  */
 const install = (
 	root: string,
@@ -43,6 +40,7 @@ const install = (
 				NODE_ENV: "development",
 			},
 		});
+
 		child.on("close", (code: number) => {
 			if (code !== 0) {
 				reject({ command: `${packageManager} ${args.join(" ")}` });
