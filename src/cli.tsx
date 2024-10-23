@@ -22,6 +22,7 @@ import { Box, render, Text } from "ink";
 import { StatusMessage } from "@inkjs/ui";
 import Link from 'ink-link'
 import React from "react";
+import { benefitPrompt } from "./prompts/benefit.js";
 
 process.on('uncaughtException', (error) => {
 	console.error(error);
@@ -63,6 +64,7 @@ const cli = meow(
 	}
 
 	const product = await productPrompt();
+	const benefit = await benefitPrompt();
 
 	await authenticationDisclaimer();
 	const code = await login();
@@ -75,7 +77,7 @@ const cli = meow(
 	const packageName = await resolvePackageName();
 	const organization = await resolveOrganization(api, packageName);
 
-	await createProduct(api, organization, product);
+	await createProduct(api, organization, product, benefit);
 
 
 	if (!cli.flags.skipTemplate) {
