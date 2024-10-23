@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { polar } from "../polar";
+import { polar } from "../../polar";
 import type { Product } from "@polar-sh/sdk/models/components";
 import { useMemo } from "react";
 
@@ -35,8 +35,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         {benefit.description}
                     </li>
                 ))}
-                </div>
             </ul>
+            </div>
             <div className="flex flex-row gap-x-4 justify-between items-center">
                 <Link className="h-8 flex flex-row items-center justify-center rounded-full bg-white text-black font-medium px-4" href={`/checkout?priceId=${firstPrice.id}`}>Buy</Link>
                 <span className="text-neutral-500">{price}</span>

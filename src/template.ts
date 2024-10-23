@@ -32,11 +32,11 @@ const copyTemplate = async (
 
 	if (isFile) {
 		fs.copyFileSync(
-			path.join(templateDirectory),
+			templateDirectory,
 			path.join(targetPath, templatePath),
 		);
 	} else {
-		fs.cpSync(templateDirectory, targetPath, { recursive: true });
+		fs.cpSync(templateDirectory, path.join(targetPath, templatePath), { recursive: true });
 	}
 };
 
