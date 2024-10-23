@@ -2,20 +2,21 @@
 	"name": "polar-init",
 	"version": "0.1.0",
 	"license": "Apache-2.0",
-	"bin": "dist/cli.js",
+	"bin": "bin/cli.js",
 	"type": "module",
 	"engines": {
 		"node": ">=16"
 	},
 	"scripts": {
-		"build": "pnpm run copy:templates && tsc",
+		"build": "pnpm run copy:templates && tsup ./src/cli.tsx --format esm",
 		"dev": "pnpm run copy:templates && tsc --watch",
 		"test": "prettier --check . && xo && ava",
 		"check": "biome check --write ./src",
-		"copy:templates": "cp -r templates dist"
+		"copy:templates": "mkdir -p dist/templates && cp -r templates dist/templates"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"bin"
 	],
 	"dependencies": {
 		"@inkjs/ui": "^2.0.0",
@@ -31,6 +32,7 @@
 		"prompts": "^2.4.2",
 		"react": "^18.2.0",
 		"standardwebhooks": "1.0.0",
+		"tsup": "^8.3.0",
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
