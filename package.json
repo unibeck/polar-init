@@ -1,6 +1,6 @@
 {
 	"name": "polar-init",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"license": "Apache-2.0",
 	"bin": "bin/cli.js",
 	"type": "module",
@@ -12,7 +12,7 @@
 		"dev": "pnpm run copy:templates && tsc --watch",
 		"test": "prettier --check . && xo && ava",
 		"check": "biome check --write ./src",
-		"copy:templates": "mkdir -p dist/templates && cp -r templates dist/templates"
+		"copy:templates": "mkdir -p dist/templates && cp -r templates dist"
 	},
 	"files": [
 		"dist",
