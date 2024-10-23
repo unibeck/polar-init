@@ -1,9 +1,9 @@
-import { randomBytes, createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import {
-	createServer,
 	type IncomingMessage,
 	type Server,
 	type ServerResponse,
+	createServer,
 } from "node:http";
 import open from "open";
 

@@ -1,18 +1,23 @@
 import { Polar } from "@polar-sh/sdk";
+import meow from "meow";
+import { installDependencies } from "./dependencies.js";
 import { login } from "./oauth.js";
-import { productPrompt } from "./prompts/product.js";
+import { resolveOrganization } from "./organization.js";
 import { resolvePackageName } from "./package.js";
 import { createProduct } from "./product.js";
-import { resolveOrganization } from "./organization.js";
+import { productPrompt } from "./prompts/product.js";
 import { templatePrompt } from "./prompts/template.js";
+import {
+	copyCheckoutTemplate,
+	copyPolarClientTemplate,
+	copyWebhooksTemplate,
+} from "./template.js";
 import { authenticationDisclaimer } from "./ui/authentication.js";
-import { precheckDisclaimer } from "./ui/precheck.js";
-import meow from "meow";
-import { copyCheckoutTemplate, copyPolarClientTemplate, copyWebhooksTemplate } from "./template.js";
-import { installDependencies } from "./dependencies.js";
 import { installDisclaimer } from "./ui/install.js";
+import { precheckDisclaimer } from "./ui/precheck.js";
 
-const cli = meow(`
+const cli = meow(
+	`
 	Usage
 	  $ polar-init
 
@@ -21,23 +26,25 @@ const cli = meow(`
 	  --skip-product  Skips the product prompt
 	  --skip-authentication  Skips the authentication prompt
 	  --skip-template  Skips the template prompt
-`, {
-	importMeta: import.meta,
-	flags: {
-		skipProduct: {
-			type: "boolean",
-			default: false,
-		},
-		skipPrecheck: {
-			type: "boolean",
-			default: false,
-		},
-		skipTemplate: {
-			type: "boolean",
-			default: false,
+`,
+	{
+		importMeta: import.meta,
+		flags: {
+			skipProduct: {
+				type: "boolean",
+				default: false,
+			},
+			skipPrecheck: {
+				type: "boolean",
+				default: false,
+			},
+			skipTemplate: {
+				type: "boolean",
+				default: false,
+			},
 		},
 	},
-});
+);
 
 (async () => {
 	if (!cli.flags.skipPrecheck) {
@@ -51,35 +58,39 @@ const cli = meow(`
 
 		await authenticationDisclaimer();
 		const code = await login();
-	
+
 		const api = new Polar({
 			accessToken: code,
 			server: "sandbox",
 		});
-	
+
 		const organization = await resolveOrganization(api, packageName);
-	
+
 		await createProduct(api, organization, product);
 	}
 
 	if (!cli.flags.skipTemplate) {
 		const templates = await templatePrompt();
-		
+
 		await copyPolarClientTemplate();
 
-		if (templates.includes('checkout')) {
+		if (templates.includes("checkout")) {
 			await copyCheckoutTemplate();
 		}
 
-		if (templates.includes('webhooks')) {
+		if (templates.includes("webhooks")) {
 			await copyWebhooksTemplate();
 		}
 
-		const baseDependencies = ["@polar-sh/sdk"]
-		const webhooksDependencies = ["standardwebhooks"]
+		const baseDependencies = ["@polar-sh/sdk"];
+		const webhooksDependencies = ["standardwebhooks"];
 
 		await installDisclaimer(
-			installDependencies(templates.includes('webhooks') ? [...baseDependencies, ...webhooksDependencies] : baseDependencies)
-		)
+			installDependencies(
+				templates.includes("webhooks")
+					? [...baseDependencies, ...webhooksDependencies]
+					: baseDependencies,
+			),
+		);
 	}
 })();

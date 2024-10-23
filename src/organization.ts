@@ -1,5 +1,5 @@
-import { Polar } from "@polar-sh/sdk";
-import { Organization } from "@polar-sh/sdk/models/components";
+import type { Polar } from "@polar-sh/sdk";
+import type { Organization } from "@polar-sh/sdk/models/components";
 import { organizationPrompt } from "./prompts/organization.js";
 
 export const resolveOrganization = async (api: Polar, slug: string) => {

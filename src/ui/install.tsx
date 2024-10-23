@@ -7,10 +7,10 @@ export const installDisclaimer = async (promise: Promise<void>) => {
 		<Spinner label="Installing dependencies..." />,
 	);
 
-    promise.then(() => {
-        clear();
-        unmount();
-    })
+	promise.then(() => {
+		clear();
+		unmount();
+	});
 
 	await waitUntilExit();
 };

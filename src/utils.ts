@@ -1,15 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "node:fs";
+import path from "node:path";
 
 export const isNextDirectory = (directory: string = process.cwd()): boolean => {
-  const nextIndicators = [
-    'next.config.js',
-    'next.config.mjs',
-    'pages',
-    'app',
-  ];
+	const nextIndicators = ["next.config.js", "next.config.mjs", "pages", "app"];
 
-  return nextIndicators.some(indicator => 
-    fs.existsSync(path.join(directory, indicator))
-  );
+	return nextIndicators.some((indicator) =>
+		fs.existsSync(path.join(directory, indicator)),
+	);
 };

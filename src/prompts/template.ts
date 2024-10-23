@@ -1,7 +1,7 @@
 import prompts from "prompts";
 
 export const templatePrompt = async () => {
-    const { templates } = await prompts({
+	const { templates } = await prompts({
 		type: "multiselect",
 		name: "templates",
 		message: "Features to setup with your Next.js project",
@@ -13,5 +13,5 @@ export const templatePrompt = async () => {
 		],
 	});
 
-    return templates
-}
+	return templates;
+};
