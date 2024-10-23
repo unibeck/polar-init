@@ -8,10 +8,11 @@
 		"node": ">=16"
 	},
 	"scripts": {
-		"build": "tsc",
-		"dev": "tsc --watch",
+		"build": "pnpm run copy:templates && tsc",
+		"dev": "pnpm run copy:templates && tsc --watch",
 		"test": "prettier --check . && xo && ava",
-		"check": "biome check --write ./src"
+		"check": "biome check --write ./src",
+		"copy:templates": "cp -r templates dist"
 	},
 	"files": [
 		"dist"
@@ -22,6 +23,7 @@
 		"ink": "^4.4.1",
 		"listr": "^0.14.3",
 		"meow": "^11.0.0",
+		"next": "^15.0.1",
 		"open": "^10.1.0",
 		"prompts": "^2.4.2",
 		"react": "^18.2.0",

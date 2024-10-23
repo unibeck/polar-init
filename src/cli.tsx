@@ -1,102 +1,85 @@
 import { Polar } from "@polar-sh/sdk";
-import type { Organization } from "@polar-sh/sdk/models/components/organization.js";
-import type { ProductsCreateProductCreate } from "@polar-sh/sdk/models/operations/productscreate.js";
 import { login } from "./oauth.js";
-import { productPrompt } from "./product.js";
-import prompts from "prompts";
-import { render } from "ink";
-import { Spinner } from "@inkjs/ui";
-import React from "react";
+import { productPrompt } from "./prompts/product.js";
 import { resolvePackageName } from "./package.js";
+import { createProduct } from "./product.js";
+import { resolveOrganization } from "./organization.js";
+import { templatePrompt } from "./prompts/template.js";
+import { authenticationDisclaimer } from "./ui/authentication.js";
+import { precheckDisclaimer } from "./ui/precheck.js";
+import meow from "meow";
+import { copyCheckoutTemplate, copyPolarClientTemplate, copyWebhooksTemplate } from "./template.js";
+import { installDependencies } from "./dependencies.js";
+import { installDisclaimer } from "./ui/install.js";
 
-const resolveOrganization = async (api: Polar, slug: string) => {
-	let organization: Organization | undefined;
+const cli = meow(`
+	Usage
+	  $ polar-init
 
-	organization = (
-		await api.organizations.list({
-			slug,
-		})
-	).result.items[0];
-
-	if (!organization) {
-		try {
-			organization = await api.organizations.create({
-				name: slug,
-				slug,
-			});
-		} catch (e: unknown) {
-			const { slug } = await prompts([
-				{
-					type: "text",
-					name: "slug",
-					message: "Organization Slug",
-				},
-			]);
-
-			const random = Math.floor(Math.random() * 1000);
-			organization = await api.organizations.create({
-				name: `${slug}-${random}`,
-				slug: `${slug}-${random}`,
-			});
-		}
-	}
-
-	return organization;
-};
-
-const handleCompletion = async (
-	api: Polar,
-	slug: string,
-	productCreate: ProductsCreateProductCreate,
-) => {
-	const organization = await resolveOrganization(api, slug);
-
-	await api.products.create({
-		...productCreate,
-		organizationId: organization.id,
-	});
-};
-
-const authenticationDisclaimer = async () => {
-	const { unmount, clear, waitUntilExit } = render(
-		<Spinner label="Opening browser for authentication..." />,
-	);
-
-	setTimeout(() => {
-		clear();
-		unmount();
-	}, 1500);
-
-	await waitUntilExit();
-};
+	Options
+	  --skip-precheck  Skips the Next.js project check
+	  --skip-product  Skips the product prompt
+	  --skip-authentication  Skips the authentication prompt
+	  --skip-template  Skips the template prompt
+`, {
+	importMeta: import.meta,
+	flags: {
+		skipProduct: {
+			type: "boolean",
+			default: false,
+		},
+		skipPrecheck: {
+			type: "boolean",
+			default: false,
+		},
+		skipTemplate: {
+			type: "boolean",
+			default: false,
+		},
+	},
+});
 
 (async () => {
+	if (!cli.flags.skipPrecheck) {
+		await precheckDisclaimer();
+	}
+
 	const packageName = await resolvePackageName();
 
-	const product = await productPrompt();
+	if (!cli.flags.skipProduct) {
+		const product = await productPrompt();
 
-	await authenticationDisclaimer();
+		await authenticationDisclaimer();
+		const code = await login();
+	
+		const api = new Polar({
+			accessToken: code,
+			server: "sandbox",
+		});
+	
+		const organization = await resolveOrganization(api, packageName);
+	
+		await createProduct(api, organization, product);
+	}
 
-	const code = await login();
+	if (!cli.flags.skipTemplate) {
+		const templates = await templatePrompt();
+		
+		await copyPolarClientTemplate();
 
-	const api = new Polar({
-		accessToken: code,
-		server: "sandbox",
-	});
+		if (templates.includes('checkout')) {
+			await copyCheckoutTemplate();
+		}
 
-	await handleCompletion(api, packageName, product);
+		if (templates.includes('webhooks')) {
+			await copyWebhooksTemplate();
+		}
 
-	const { templates } = await prompts({
-		type: "multiselect",
-		name: "templates",
-		message: "Features to setup with your Next.js project",
-		instructions: false,
-		choices: [
-			{ title: "Checkout Route", value: "checkout", selected: true },
-			{ title: "Confirmation Page", value: "confirmation", selected: true },
-			{ title: "Webhook Handler", value: "webhooks", selected: true },
-		],
-	});
+		const baseDependencies = ["@polar-sh/sdk"]
+		const webhooksDependencies = ["standardwebhooks"]
 
-	console.log(templates);
+		await installDisclaimer(
+			installDependencies(templates.includes('webhooks') ? [...baseDependencies, ...webhooksDependencies] : baseDependencies)
+		)
+	}
 })();

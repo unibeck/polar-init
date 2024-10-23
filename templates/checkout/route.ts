@@ -1,4 +1,4 @@
-import { polar } from "@/polar";
+import { polar } from "../polar";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {

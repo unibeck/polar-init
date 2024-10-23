@@ -1,85 +1,15 @@
-import prompts from "prompts";
+import { Polar } from "@polar-sh/sdk";
+import { ProductsCreateProductCreate } from "@polar-sh/sdk/models/operations";
+import { Organization } from "@polar-sh/sdk/models/components";
 
-export const productPrompt = async () => {
-	const productResponse = await prompts([
-		{
-			type: "text",
-			name: "name",
-			message: "Product Name",
-			validate: (value) => (value ? true : "Product Name is required"),
-		},
-		{
-			type: "text",
-			name: "description",
-			message: "Product Description",
-		},
-	]);
+export const createProduct = async (
+	api: Polar,
+	organization: Organization,
+	productCreate: ProductsCreateProductCreate,
+) => {
 
-	const priceTypeResponse = await prompts({
-		type: "select",
-		name: "priceType",
-		message: "Product Type",
-		choices: [
-			{ title: "One-Time Purchase", value: "one-time" },
-			{ title: "Subscription", value: "recurring" },
-		],
+	await api.products.create({
+		...productCreate,
+		organizationId: organization.id,
 	});
-
-	if (priceTypeResponse.priceType === "one-time") {
-		const priceResponse = await prompts([
-			{
-				type: "select",
-				name: "priceAmountType",
-				message: "Price Type",
-				choices: [
-					{ title: "Free", value: "free" },
-					{ title: "Fixed", value: "fixed" },
-					{ title: "Custom", value: "custom" },
-				],
-			},
-			{
-				type: (prev) => (prev !== "free" ? "number" : false),
-				name: "priceAmount",
-				message: "Price",
-				validate: (value) => (value ? true : "Price is required"),
-			},
-		]);
-
-		return {
-			...productResponse,
-			prices: [priceResponse],
-		};
-	}
-
-	const priceResponse = await prompts([
-		{
-			type: "select",
-			name: "recurringInterval",
-			message: "Recurring Interval",
-			choices: [
-				{ title: "Monthly", value: "monthly" },
-				{ title: "Yearly", value: "yearly" },
-			],
-		},
-		{
-			type: "select",
-			name: "priceAmountType",
-			message: "Price Type",
-			choices: [
-				{ title: "Free", value: "free" },
-				{ title: "Fixed", value: "fixed" },
-			],
-		},
-		{
-			type: (prev) => (prev !== "free" ? "number" : false),
-			name: "priceAmount",
-			message: "Price",
-			validate: (value) => (value ? true : "Price is required"),
-		},
-	]);
-
-	return {
-		...productResponse,
-		prices: [priceResponse],
-	};
 };
