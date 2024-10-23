@@ -44,6 +44,10 @@ export const copyPolarClientTemplate = async () => {
 	copyTemplate("polar.ts", path.join(resolveAppDirectory(), ".."), true);
 };
 
+export const copyProductsTemplate = async () => {
+	copyTemplate("products");
+};
+
 export const copyCheckoutTemplate = async () => {
 	copyTemplate("checkout");
 };

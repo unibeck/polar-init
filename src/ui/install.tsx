@@ -3,12 +3,11 @@ import { render } from "ink";
 import React from "react";
 
 export const installDisclaimer = async (promise: Promise<void>) => {
-	const { unmount, clear, waitUntilExit } = render(
+	const { unmount, waitUntilExit } = render(
 		<Spinner label="Installing dependencies..." />,
 	);
 
 	promise.then(() => {
-		clear();
 		unmount();
 	});
 

@@ -23,6 +23,7 @@
 		"@types/cross-spawn": "^6.0.6",
 		"cross-spawn": "^7.0.3",
 		"ink": "^4.4.1",
+		"ink-link": "^4.1.0",
 		"listr": "^0.14.3",
 		"meow": "^11.0.0",
 		"next": "^15.0.1",

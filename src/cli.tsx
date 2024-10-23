@@ -10,6 +10,7 @@ import { templatePrompt } from "./prompts/template.js";
 import {
 	copyCheckoutTemplate,
 	copyPolarClientTemplate,
+	copyProductsTemplate,
 	copyWebhooksTemplate,
 } from "./template.js";
 import { authenticationDisclaimer } from "./ui/authentication.js";
@@ -17,6 +18,20 @@ import { installDisclaimer } from "./ui/install.js";
 import { precheckDisclaimer } from "./ui/precheck.js";
 import { environmentDisclaimer } from "./ui/environment.js";
 import { appendEnvironmentVariables } from "./env.js";
+import { Box, render, Text } from "ink";
+import { StatusMessage } from "@inkjs/ui";
+import Link from 'ink-link'
+import React from "react";
+
+process.on('uncaughtException', (error) => {
+	console.error(error);
+	process.exit(1);
+});
+
+process.on('unhandledRejection', (error) => {
+	console.error(error);
+	process.exit(1);
+});
 
 const cli = meow(
 	`
@@ -25,8 +40,6 @@ const cli = meow(
 
 	Options
 	  --skip-precheck  Skips the Next.js project check
-	  --skip-product  Skips the product prompt
-	  --skip-authentication  Skips the authentication prompt
 	  --skip-template  Skips the template prompt
 `,
 	{
@@ -74,6 +87,7 @@ const cli = meow(
 		const shouldCopyWebhooks = templates.includes("webhooks");
 
 		if (shouldCopyCheckout) {
+			await copyProductsTemplate()
 			await copyCheckoutTemplate();
 		}
 
@@ -93,11 +107,37 @@ const cli = meow(
 		);
 
 		// Handle environment variables
-		await environmentDisclaimer(appendEnvironmentVariables( shouldCopyWebhooks ? {
-			// POLAR_ACCESS_TOKEN: accessToken,
-			POLAR_ORGANIZATION_ID: organization.id
-		} : {
-			POLAR_ORGANIZATION_ID: organization.id
+		await environmentDisclaimer(appendEnvironmentVariables({
+			...{
+				POLAR_ACCESS_TOKEN: "",
+				POLAR_ORGANIZATION_ID: organization.id
+			},
+			...shouldCopyWebhooks ? {
+				POLAR_WEBHOOK_SECRET: ""
+			} : {}
 		}));
 	}
+
+	render(
+		<Box flexDirection="column" columnGap={2}>
+			<StatusMessage variant="success">
+				<Text>Polar was successfully initialized!</Text>
+			</StatusMessage>
+			<Box flexDirection="column" paddingY={1}>
+				<Text>
+					Environment: <Text color="yellow">Sandbox</Text> <Text color="gray">(Setup Polar in production when you're ready to launch)</Text>
+				</Text>
+				<Text>
+					Organization: <Text color="blue">{organization.name}</Text>
+				</Text>
+				<Text>
+					Product: <Text color="blue">{product.name}</Text>
+				</Text>
+
+				<Text color="magentaBright">{'>'} <Link url="https://sandbox.polar.sh/settings">Create Polar Access Token</Link></Text>
+				<Text color="magentaBright">{'>'} <Link url={`https://sandbox.polar.sh/dashboard/${organization.slug}/settings`}>Configure Webhooks</Link></Text>
+				<Text color="cyanBright">{'>'} <Link url="https://docs.polar.sh/guides/nextjs">Continue to the Polar Next.js Guide</Link></Text>
+			</Box>
+		</Box>
+	)
 })();
