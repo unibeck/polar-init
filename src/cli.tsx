@@ -23,6 +23,7 @@ import { StatusMessage } from "@inkjs/ui";
 import Link from 'ink-link'
 import React from "react";
 import { benefitPrompt } from "./prompts/benefit.js";
+import { isNextDirectory, isNuxtDirectory } from "./utils.js";
 
 process.on('uncaughtException', (error) => {
 	console.error(error);
@@ -40,7 +41,7 @@ const cli = meow(
 	  $ polar-init
 
 	Options
-	  --skip-precheck  Skips the Next.js project check
+	  --skip-precheck  Skips the Next.js or Nuxt v3 project check
 	  --skip-template  Skips the template prompt
 `,
 	{
