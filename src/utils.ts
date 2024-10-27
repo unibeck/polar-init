@@ -10,7 +10,7 @@ export const isNextDirectory = (directory: string = process.cwd()): boolean => {
 };
 
 export const isNuxtDirectory = (directory: string = process.cwd()): boolean => {
-	const nuxtIndicators = ["nuxt.config.js", "nuxt.config.mjs", "nuxt.config.ts", "pages"];
+	const nuxtIndicators = ["nuxt.config.js", "nuxt.config.mjs", "nuxt.config.ts", "pages", "src/pages"];
 
 	return nuxtIndicators.some((indicator) =>
 		fs.existsSync(path.join(directory, indicator)),

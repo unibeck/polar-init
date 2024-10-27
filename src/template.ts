@@ -4,9 +4,11 @@ import path from "node:path";
 const resolveAppDirectory = () => {
 	const workingDirectory = process.cwd();
 
-	// find the app directory which can be either app or src/app
+	// find the app directory which can be either app, src/app, or pages for Nuxt v3
 	const appPath = path.join(workingDirectory, "app");
 	const srcAppPath = path.join(workingDirectory, "src", "app");
+	const pagesPath = path.join(workingDirectory, "pages");
+	const srcPagesPath = path.join(workingDirectory, "src", "pages");
 
 	if (fs.existsSync(appPath)) {
 		return appPath;
@@ -16,8 +18,16 @@ const resolveAppDirectory = () => {
 		return srcAppPath;
 	}
 
+	if (fs.existsSync(pagesPath)) {
+		return pagesPath;
+	}
+
+	if (fs.existsSync(srcPagesPath)) {
+		return srcPagesPath;
+	}
+
 	throw new Error(
-		'App directory not found. Expected either "app" or "src/app" directory.',
+		'App directory not found. Expected either "app", "src/app", "pages", or "src/pages" directory.',
 	);
 };
 
