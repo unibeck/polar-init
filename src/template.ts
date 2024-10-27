@@ -54,14 +54,17 @@ export const copyPolarClientTemplate = async () => {
 	copyTemplate("polar.ts", path.join(resolveAppDirectory(), ".."), true);
 };
 
-export const copyProductsTemplate = async () => {
-	copyTemplate("products");
+export const copyProductsTemplate = async (framework = "next") => {
+	const templatePath = framework === "nuxt3" ? "nuxt3/products" : "products";
+	copyTemplate(templatePath);
 };
 
-export const copyCheckoutTemplate = async () => {
-	copyTemplate("checkout");
+export const copyCheckoutTemplate = async (framework = "next") => {
+	const templatePath = framework === "nuxt3" ? "nuxt3/checkout" : "checkout";
+	copyTemplate(templatePath);
 };
 
-export const copyWebhooksTemplate = async () => {
-	copyTemplate("api");
+export const copyWebhooksTemplate = async (framework = "next") => {
+	const templatePath = framework === "nuxt3" ? "nuxt3/api" : "api";
+	copyTemplate(templatePath);
 };

@@ -90,12 +90,21 @@ const cli = meow(
 		const shouldCopyWebhooks = templates.includes("webhooks");
 
 		if (shouldCopyCheckout) {
-			await copyProductsTemplate()
-			await copyCheckoutTemplate();
+			if (isNuxtDirectory()) {
+				await copyProductsTemplate("nuxt3/products");
+				await copyCheckoutTemplate("nuxt3/checkout");
+			} else {
+				await copyProductsTemplate();
+				await copyCheckoutTemplate();
+			}
 		}
 
 		if (shouldCopyWebhooks) {
-			await copyWebhooksTemplate();
+			if (isNuxtDirectory()) {
+				await copyWebhooksTemplate("nuxt3/api");
+			} else {
+				await copyWebhooksTemplate();
+			}
 		}
 
 		const baseDependencies = ["@polar-sh/sdk"];
