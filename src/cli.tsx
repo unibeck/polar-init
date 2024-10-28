@@ -23,7 +23,7 @@ import { StatusMessage } from "@inkjs/ui";
 import Link from 'ink-link'
 import React from "react";
 import { benefitPrompt } from "./prompts/benefit.js";
-import { isNextDirectory, isNuxtDirectory } from "./utils.js";
+import { isNuxtDirectory } from "./utils.js";
 
 process.on('uncaughtException', (error) => {
 	console.error(error);
@@ -41,7 +41,7 @@ const cli = meow(
 	  $ polar-init
 
 	Options
-	  --skip-precheck  Skips the Next.js or Nuxt v3 project check
+	  --skip-precheck  Skips the Next.js or NuxtJS project check
 	  --skip-template  Skips the template prompt
 `,
 	{
@@ -84,15 +84,19 @@ const cli = meow(
 	if (!cli.flags.skipTemplate) {
 		const templates = await templatePrompt();
 
-		await copyPolarClientTemplate();
+		if (isNuxtDirectory()) {
+			await copyPolarClientTemplate("nuxt");
+		} else {
+			await copyPolarClientTemplate();
+		}
 
 		const shouldCopyCheckout = templates.includes("checkout");
 		const shouldCopyWebhooks = templates.includes("webhooks");
 
 		if (shouldCopyCheckout) {
 			if (isNuxtDirectory()) {
-				await copyProductsTemplate("nuxt3/products");
-				await copyCheckoutTemplate("nuxt3/checkout");
+				await copyProductsTemplate("nuxt");
+				await copyCheckoutTemplate("nuxt");
 			} else {
 				await copyProductsTemplate();
 				await copyCheckoutTemplate();
@@ -101,7 +105,7 @@ const cli = meow(
 
 		if (shouldCopyWebhooks) {
 			if (isNuxtDirectory()) {
-				await copyWebhooksTemplate("nuxt3/api");
+				await copyWebhooksTemplate("nuxt");
 			} else {
 				await copyWebhooksTemplate();
 			}

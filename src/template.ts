@@ -4,11 +4,9 @@ import path from "node:path";
 const resolveAppDirectory = () => {
 	const workingDirectory = process.cwd();
 
-	// find the app directory which can be either app, src/app, or pages for Nuxt v3
+	// find the app directory which can be either app or src/app
 	const appPath = path.join(workingDirectory, "app");
 	const srcAppPath = path.join(workingDirectory, "src", "app");
-	const pagesPath = path.join(workingDirectory, "pages");
-	const srcPagesPath = path.join(workingDirectory, "src", "pages");
 
 	if (fs.existsSync(appPath)) {
 		return appPath;
@@ -18,27 +16,20 @@ const resolveAppDirectory = () => {
 		return srcAppPath;
 	}
 
-	if (fs.existsSync(pagesPath)) {
-		return pagesPath;
-	}
-
-	if (fs.existsSync(srcPagesPath)) {
-		return srcPagesPath;
-	}
-
 	throw new Error(
-		'App directory not found. Expected either "app", "src/app", "pages", or "src/pages" directory.',
+		'App directory not found. Expected either "app" or "src/app" directory.',
 	);
 };
 
 const copyTemplate = async (
+	framework: string,
 	templatePath: string,
 	targetPath = resolveAppDirectory(),
 	isFile = false,
 ) => {
 	const cliDirectory = import.meta.dirname;
 
-	const templateDirectory = path.join(cliDirectory, "templates", templatePath);
+	const templateDirectory = path.join(cliDirectory, "templates", framework, templatePath);
 
 	if (isFile) {
 		fs.copyFileSync(
@@ -50,21 +41,36 @@ const copyTemplate = async (
 	}
 };
 
-export const copyPolarClientTemplate = async () => {
-	copyTemplate("polar.ts", path.join(resolveAppDirectory(), ".."), true);
+export const copyPolarClientTemplate = async (framework = "next") => {
+	if (framework === "nuxt") {
+		copyTemplate(framework, "utils", path.join(resolveAppDirectory(), ".."));
+	} else {
+		copyTemplate(framework, "polar.ts", path.join(resolveAppDirectory(), ".."), true);
+	}
 };
 
 export const copyProductsTemplate = async (framework = "next") => {
-	const templatePath = framework === "nuxt3" ? "nuxt3/products" : "products";
-	copyTemplate(templatePath);
+	if (framework === "nuxt") {
+		copyTemplate(framework, path.join("server", "api", "polar", "products"), path.join(resolveAppDirectory(), ".."));
+		copyTemplate(framework, path.join("app", "pages", "products"), path.join(resolveAppDirectory(), ".."));
+	} else {
+		copyTemplate(framework, "products");
+	}
 };
 
 export const copyCheckoutTemplate = async (framework = "next") => {
-	const templatePath = framework === "nuxt3" ? "nuxt3/checkout" : "checkout";
-	copyTemplate(templatePath);
+	if (framework === "nuxt") {
+		copyTemplate(framework, path.join("server", "api", "checkout"), path.join(resolveAppDirectory(), ".."));
+		copyTemplate(framework, path.join("app", "pages", "checkout"), path.join(resolveAppDirectory(), ".."));
+	} else {
+		copyTemplate(framework, "checkout");
+	}
 };
 
 export const copyWebhooksTemplate = async (framework = "next") => {
-	const templatePath = framework === "nuxt3" ? "nuxt3/api" : "api";
-	copyTemplate(templatePath);
+	if (framework === "nuxt") {
+		copyTemplate(framework, path.join("server", "api", "polar", "webhook"), path.join(resolveAppDirectory(), ".."));
+	} else {
+		copyTemplate(framework, "api");
+	}
 };

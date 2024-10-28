@@ -7,7 +7,7 @@ const precheck = async () => {
 	if (!isNextDirectory() && !isNuxtDirectory()) {
 		const { unmount, clear, waitUntilExit } = render(
 			<StatusMessage variant="error">
-				<Text>This is not a Next.js or Nuxt v3 project</Text>
+				<Text>This is not a Next.js or NuxtJS project</Text>
 			</StatusMessage>,
 		);
 
@@ -24,7 +24,7 @@ const precheck = async () => {
 
 export const precheckDisclaimer = async () => {
 	const { unmount, clear, waitUntilExit } = render(
-		<Spinner label="Analyzing your Next.js or Nuxt v3 project..." />,
+		<Spinner label="Analyzing your Next.js or NuxtJS project..." />,
 	);
 
 	setTimeout(() => {
