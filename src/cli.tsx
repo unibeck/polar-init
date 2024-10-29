@@ -83,8 +83,9 @@ const cli = meow(
 
 	if (!cli.flags.skipTemplate) {
 		const templates = await templatePrompt();
+		const isNuxt = isNuxtDirectory();
 
-		if (isNuxtDirectory()) {
+		if (isNuxt) {
 			await copyPolarClientTemplate("nuxt");
 		} else {
 			await copyPolarClientTemplate();
@@ -94,7 +95,7 @@ const cli = meow(
 		const shouldCopyWebhooks = templates.includes("webhooks");
 
 		if (shouldCopyCheckout) {
-			if (isNuxtDirectory()) {
+			if (isNuxt) {
 				await copyProductsTemplate("nuxt");
 				await copyCheckoutTemplate("nuxt");
 			} else {
@@ -104,7 +105,7 @@ const cli = meow(
 		}
 
 		if (shouldCopyWebhooks) {
-			if (isNuxtDirectory()) {
+			if (isNuxt) {
 				await copyWebhooksTemplate("nuxt");
 			} else {
 				await copyWebhooksTemplate();
@@ -122,15 +123,27 @@ const cli = meow(
 			),
 		);
 
+
+
+
 		// Handle environment variables
-		await environmentDisclaimer(appendEnvironmentVariables({
-			...{
+		let envVar = {}
+		if (isNuxt) {
+			envVar = {
+				NUXT_POLAR_ORGANIZATION_ID: organization.id,
+				NUXT_POLAR_ACCESS_TOKEN: "",
+				NUXT_POLAR_WEBHOOK_SECRET: shouldCopyWebhooks ? "" : undefined,
+				NUXT_POLAR_SERVER: "sandbox",
+			};
+		} else {
+			envVar = {
+				POLAR_ORGANIZATION_ID: organization.id,
 				POLAR_ACCESS_TOKEN: "",
-				POLAR_ORGANIZATION_ID: organization.id
-			},
-			...shouldCopyWebhooks ? {
-				POLAR_WEBHOOK_SECRET: ""
-			} : {}
+				POLAR_WEBHOOK_SECRET: shouldCopyWebhooks ? "" : undefined,
+			};
+		}
+		await environmentDisclaimer(appendEnvironmentVariables({
+			...envVar,
 		}));
 	}
 

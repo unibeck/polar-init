@@ -43,7 +43,7 @@ const copyTemplate = async (
 
 export const copyPolarClientTemplate = async (framework = "next") => {
 	if (framework === "nuxt") {
-		copyTemplate(framework, "utils", path.join(resolveAppDirectory(), ".."));
+		copyTemplate(framework, path.join("app", "utils"), path.join(resolveAppDirectory(), ".."));
 	} else {
 		copyTemplate(framework, "polar.ts", path.join(resolveAppDirectory(), ".."), true);
 	}
